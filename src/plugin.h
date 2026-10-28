@@ -23,6 +23,10 @@
 #ifndef _PLUGIN_H
 #define _PLUGIN_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define PLUGIN_EXIT_ERROR  -2
 #define PLUGIN_EXIT_NORMAL -1
 #define PLUGIN_RUNNING      0
@@ -73,8 +77,15 @@ int start_plugin(const char *plugin,
                  uint16_t control_port,
 #endif
                  enum plugin_mode mode);
+/* The user the plugin runs as once started as root (see --user); NULL
+ * keeps the starting user. Set before start_plugin(). */
+void set_plugin_user(const char *user);
 uint16_t get_local_port();
 void stop_plugin();
 int is_plugin_running();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _PLUGIN_H

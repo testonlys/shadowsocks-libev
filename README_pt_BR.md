@@ -11,7 +11,7 @@ proxy para dispositivos embutidos e caixas de baixo custo.
 criado por [@clowwindy](https://github.com/clowwindy) e mantido por
 [@madeye](https://github.com/madeye) e [@linusyang](https://github.com/linusyang).
 
-Versão atual: 3.3.5 | [Changelog](debian/changelog)
+Versão atual: 3.3.6 | [Changelog](debian/changelog)
 
 ## Características
 
@@ -173,7 +173,7 @@ Se você estiver usando o CentOS 7, precisará instalar estes pré-requisitos pa
 
 ```bash
 yum install epel-release -y
-yum install gcc gettext autoconf libtool automake make pcre-devel asciidoc xmlto c-ares-devel libev-devel libsodium-devel mbedtls-devel -y
+yum install gcc gettext autoconf libtool automake make pcre-devel doxygen c-ares-devel libev-devel libsodium-devel mbedtls-devel -y
 ```
 
 ### Archlinux & Manjaro
@@ -208,8 +208,7 @@ Em geral, você precisa das seguintes dependências de compilação:
 * libpcre3 (antiga biblioteca pcre)
 * libev
 * libc-ares
-* asciidoc (somente para documentação)
-* xmlto (apenas para documentação)
+* Doxygen 1.9.4+ (somente para documentação)
 
 Notas: Fedora 26 libsodium versão >= 1.0.12, então você pode instalar via dnf install libsodium em vez de compilar a partir da fonte.
 
@@ -222,11 +221,11 @@ Para algumas das distribuições, você pode instalar dependências de compilaç
 ```bash
 # Instalação de dependências básicas de compilação
 ## Debian / Ubuntu
-sudo apt-get install --no-install-recommends gettext build-essential autoconf libtool libpcre3-dev asciidoc xmlto libev-dev libc-ares-dev automake libmbedtls-dev libsodium-dev pkg-config
+sudo apt-get install --no-install-recommends gettext build-essential autoconf libtool libpcre3-dev doxygen libev-dev libc-ares-dev automake libmbedtls-dev libsodium-dev pkg-config
 ## CentOS / Fedora / RHEL
-sudo yum install gettext gcc autoconf libtool automake make asciidoc xmlto c-ares-devel libev-devel
+sudo yum install gettext gcc autoconf libtool automake make doxygen c-ares-devel libev-devel
 ## Arch
-sudo pacman -S gettext gcc autoconf libtool automake make asciidoc xmlto c-ares libev
+sudo pacman -S gettext gcc autoconf libtool automake make doxygen c-ares libev
 
 # Instalação do libsodium
 export LIBSODIUM_VER=1.0.16
@@ -364,15 +363,10 @@ você pode consultar as páginas de manual dos aplicativos, respectivamente.
 
        -k <password>               Senha do seu servidor remoto.
 
-       -m <encrypt_method>         Método de criptografia: rc4-md5,
+       -m <encrypt_method>         Método de criptografia:
                                    aes-128-gcm, aes-192-gcm, aes-256-gcm,
-                                   aes-128-cfb, aes-192-cfb, aes-256-cfb,
-                                   aes-128-ctr, aes-192-ctr, aes-256-ctr,
-                                   camellia-128-cfb, camellia-192-cfb,
-                                   camellia-256-cfb, bf-cfb,
-                                   chacha20-ietf-poly1305,
-                                   xchacha20-ietf-poly1305,
-                                   salsa20, chacha20 e chacha20-ietf.
+                                   chacha20-ietf-poly1305 e
+                                   xchacha20-ietf-poly1305.
                                    A cifra padrão é chacha20-ietf-poly1305.
 
        [-a <user>]                 Executar como outro usuário.

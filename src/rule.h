@@ -31,26 +31,36 @@
 #include "config.h"
 #endif
 
-#include <libcork/ds.h>
+#include "core.h"
+#include "core/intrusive_list.hpp"
 
-#ifdef HAVE_PCRE_H
-#include <pcre.h>
-#elif HAVE_PCRE_PCRE_H
-#include <pcre/pcre.h>
+#if SS_ENABLE_REGEX
+#define PCRE2_CODE_UNIT_WIDTH 8
+#include <pcre2.h>
 #endif
 
-typedef struct rule {
-    char *pattern;
+/* A domain rule, linked into one of the ACL's rule lists. Rules are built
+ * while the ACL loads and are immutable afterwards. Destroying a rule
+ * unlinks it. */
+typedef struct rule : ss::ListNode<> {
+    char *pattern = nullptr;
 
+    /* 0: regex, 1: full domain, 2: domain suffix (including the apex). */
+    unsigned kind       = 0;
+    const char *literal = nullptr;
+#if SS_ENABLE_REGEX
     /* Runtime fields */
-    pcre *pattern_re;
-
-    struct cork_dllist_item entries;
+    pcre2_code *pattern_re         = nullptr;
+    pcre2_match_data *match_data   = nullptr;
+#endif
 } rule_t;
 
-void add_rule(struct cork_dllist *, rule_t *);
+using rule_list_t = ss::IntrusiveList<rule_t>;
+
+void add_rule(rule_list_t *, rule_t *);
 int init_rule(rule_t *);
-rule_t *lookup_rule(const struct cork_dllist *, const char *, size_t);
+rule_t *lookup_rule(rule_list_t *, const char *, size_t);
+void free_rule(rule_t *);
 void remove_rule(rule_t *);
 rule_t *new_rule();
 int accept_rule_arg(rule_t *, const char *);

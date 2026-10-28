@@ -24,20 +24,18 @@
 #define _MANAGER_H
 
 #include <time.h>
-#include <libcork/ds.h>
-
-#ifdef HAVE_LIBEV_EV_H
-#include <libev/ev.h>
-#else
-#include <ev.h>
-#endif
+#include "core.h"
+#include "core/intrusive_list.hpp"
 
 #include "jconf.h"
 
 #include "common.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct manager_ctx {
-    ev_io io;
     int fd;
     int fast_open;
     int no_delay;
@@ -65,16 +63,21 @@ struct manager_ctx {
 #endif
 };
 
-struct server {
-    char port[8];
-    char password[128];
-    char fast_open[8];
-    char no_delay[8];
-    char *mode;
-    char *method;
-    char *plugin;
-    char *plugin_opts;
-    uint64_t traffic;
+/* A managed ss-server, linked into server_table (at most MAX_PORT_NUM). */
+struct server : ss::ListNode<> {
+    char port[8]          = {};
+    char password[128]    = {};
+    char fast_open[8]     = {};
+    char no_delay[8]      = {};
+    char *mode            = nullptr;
+    char *method          = nullptr;
+    char *plugin          = nullptr;
+    char *plugin_opts     = nullptr;
+    uint64_t traffic      = 0;
 };
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _MANAGER_H

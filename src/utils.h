@@ -25,9 +25,14 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <limits.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define PORTSTRLEN 16
 #define SS_ADDRSTRLEN (INET6_ADDRSTRLEN + PORTSTRLEN + 1)
@@ -191,14 +196,9 @@ extern int use_syslog;
 
 #endif // if __ANDROID__
 
-// Workaround for "%z" in Windows printf
-#ifdef __MINGW32__
-#define SSIZE_FMT "%Id"
-#define SIZE_FMT "%Iu"
-#else
+/* C99 size formats; MinGW targets explicitly enable its ANSI stdio adapter. */
 #define SSIZE_FMT "%zd"
 #define SIZE_FMT "%zu"
-#endif
 
 #ifdef __MINGW32__
 // Override Windows built-in functions
@@ -207,7 +207,7 @@ extern int use_syslog;
 #endif
 #define ERROR(s) ss_error(s)
 
-// Implemented in winsock.c
+// Implemented in winsock.cpp
 void ss_error(const char *s);
 void ss_color_info(void);
 void ss_color_error(void);
@@ -218,15 +218,25 @@ void ERROR(const char *s);
 
 char *ss_itoa(int i);
 int ss_isnumeric(const char *s);
+int ss_parse_int(const char *s, int min_value, int max_value, int *out);
+int ss_parse_uint16_port(const char *s, uint16_t *out);
 int run_as(const char *user);
-void FATAL(const char *msg);
+void FATAL(const char *msg) __attribute__((noreturn));
 void usage(void);
+void cli_version(void);
+void cli_error(const char *message, int option, const char *token) __attribute__((noreturn));
 void daemonize(const char *path);
+/* After daemonize(): the daemon is serving, so the starting process may
+ * exit successfully (it fails if the daemon exits first). A no-op without
+ * daemonize(). */
+void daemon_ready(void);
 char *ss_strndup(const char *s, size_t n);
 #ifdef HAVE_SETRLIMIT
 int set_nofile(int nofile);
 #endif
 
+extern int ss_heap_sealed;
+extern size_t ss_heap_late_allocations;
 void *ss_malloc(size_t size);
 void *ss_aligned_malloc(size_t size);
 void *ss_realloc(void *ptr, size_t new_size);
@@ -251,5 +261,9 @@ int ss_is_ipv6addr(const char *addr);
 char *get_default_conf(void);
 uint16_t load16_be(const void *s);
 int get_mptcp(int enable);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _UTILS_H
